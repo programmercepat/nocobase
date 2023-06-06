@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { OpenSize } from './';
 import { useActionContext } from './hooks';
 import { ComposedActionDrawer } from './types';
-import { OpenSize } from './';
 
 const openSizeWidthMap = new Map<OpenSize, string>([
   ['small', '30%'],
@@ -44,7 +44,7 @@ export const ActionDrawer: ComposedActionDrawer = observer(
               destroyOnClose
               open={visible}
               onClose={() => setVisible(false, true)}
-              className={classNames(
+              rootClassName={classNames(
                 others.className,
                 css`
                   &.nb-action-popup {
