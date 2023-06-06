@@ -1,11 +1,12 @@
 import { ApiOutlined, SettingOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Menu, Tooltip } from 'antd';
-import React, { useContext, useState } from 'react';
+import { Button, Dropdown, MenuProps, Tooltip } from 'antd';
+import _ from 'lodash';
+import React, { useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useACLRoleContext } from '../acl/ACLProvider';
 import { ActionContext, useCompile } from '../schema-component';
-import { getPluginsTabs, SettingsCenterContext } from './index';
+import { SettingsCenterContext, getPluginsTabs } from './index';
 
 export const PluginManagerLink = () => {
   const { t } = useTranslation();
@@ -23,7 +24,7 @@ export const PluginManagerLink = () => {
   );
 };
 
-const getBookmarkTabs = (data) => {
+const getBookmarkTabs = _.memoize((data) => {
   const bookmarkTabs = [];
   data.forEach((plugin) => {
     const tabs = plugin.tabs;
@@ -32,7 +33,7 @@ const getBookmarkTabs = (data) => {
     });
   });
   return bookmarkTabs;
-};
+});
 export const SettingsCenterDropdown = () => {
   const { snippets = [] } = useACLRoleContext();
   const [visible, setVisible] = useState(false);
@@ -42,27 +43,28 @@ export const SettingsCenterDropdown = () => {
   const itemData = useContext(SettingsCenterContext);
   const pluginsTabs = getPluginsTabs(itemData, snippets);
   const bookmarkTabs = getBookmarkTabs(pluginsTabs);
+  const menu = useMemo<MenuProps>(() => {
+    return {
+      items: [
+        ...bookmarkTabs.map((tab) => ({
+          key: `/admin/settings/${tab.path}`,
+          label: compile(tab.title),
+        })),
+        { type: 'divider' },
+        {
+          key: '/admin/settings',
+          label: t('All plugin settings'),
+        },
+      ],
+      onClick({ key }) {
+        history.push(key);
+      },
+    };
+  }, [bookmarkTabs, history]);
+
   return (
     <ActionContext.Provider value={{ visible, setVisible }}>
-      <Dropdown
-        placement="bottom"
-        menu={{
-          items: [
-            ...bookmarkTabs.map((tab) => ({
-              key: `/admin/settings/${tab.path}`,
-              label: compile(tab.title),
-            })),
-            { type: 'divider' },
-            {
-              key: '/admin/settings',
-              label: t('All plugin settings'),
-            },
-          ],
-          onClick({ key }) {
-            history.push(key);
-          },
-        }}
-      >
+      <Dropdown placement="bottom" menu={menu}>
         <Button
           icon={<SettingOutlined />}
           // title={t('All plugin settings')}

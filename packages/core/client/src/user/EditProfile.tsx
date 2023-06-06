@@ -1,16 +1,9 @@
 import { ISchema, useForm } from '@formily/react';
 import { uid } from '@formily/shared';
-import { Menu } from 'antd';
-import React, { useContext, useState } from 'react';
+import { MenuProps } from 'antd';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActionContext,
-  DropdownVisibleContext,
-  SchemaComponent,
-  useActionContext,
-  useCurrentUserContext,
-  useRequest,
-} from '../';
+import { ActionContext, SchemaComponent, useActionContext, useCurrentUserContext, useRequest } from '../';
 import { useAPIClient } from '../api-client';
 
 const useCloseAction = () => {
@@ -114,23 +107,29 @@ const schema: ISchema = {
   },
 };
 
-export const EditProfile = () => {
+export const useEditProfile = ({ setVisible: setVisibleOfDropdown }) => {
   const [visible, setVisible] = useState(false);
   const { t } = useTranslation();
-  const ctx = useContext(DropdownVisibleContext);
-  return (
-    <ActionContext.Provider value={{ visible, setVisible }}>
-      <Menu.Item
-        key="profile"
-        eventKey={'EditProfile'}
-        onClick={() => {
-          setVisible(true);
-          ctx.setVisible(false);
-        }}
-      >
-        {t('Edit profile')}
-      </Menu.Item>
-      <SchemaComponent scope={{ useCurrentUserValues, useCloseAction, useSaveCurrentUserValues }} schema={schema} />
-    </ActionContext.Provider>
-  );
+
+  return useMemo<MenuProps['items'][0]>(() => {
+    return {
+      key: 'profile',
+      eventKey: 'EditProfile',
+      onClick: () => {
+        setVisible(true);
+        setVisibleOfDropdown(false);
+      },
+      label: (
+        <>
+          {t('Edit profile')}
+          <ActionContext.Provider value={{ visible, setVisible }}>
+            <SchemaComponent
+              scope={{ useCurrentUserValues, useCloseAction, useSaveCurrentUserValues }}
+              schema={schema}
+            />
+          </ActionContext.Provider>
+        </>
+      ),
+    };
+  }, [visible]);
 };
