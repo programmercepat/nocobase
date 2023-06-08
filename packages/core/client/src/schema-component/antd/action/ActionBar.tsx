@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css';
-import { observer, RecursionField, useFieldSchema } from '@formily/react';
+import { RecursionField, observer, useFieldSchema } from '@formily/react';
 import { Space } from 'antd';
 import React from 'react';
 import { useSchemaInitializer } from '../../../schema-initializer';
@@ -41,13 +41,13 @@ export const ActionBar = observer(
           !designable && !hasActions
             ? undefined
             : {
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              overflowX: 'auto',
-              flexShrink: 0,
-              ...style,
-            }
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                overflowX: 'auto',
+                flexShrink: 0,
+                ...style,
+              }
         }
         {...others}
         className={cx(others.className, 'nb-action-bar')}
